@@ -12,11 +12,11 @@ class CategorySerializer(serializers.ModelSerializer):
 class MenuItemSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     category_id = serializers.IntegerField(write_only=True)
-    price_after_tax = serializers.SerializerMethodField(method_name='CalculateTax')    
+    # price_after_tax = serializers.SerializerMethodField(method_name='CalculateTax')    
     
     class Meta:
         model = MenuItem
-        fields = ['id', 'title', 'price', 'price_after_tax', 'featured', 'category', 'category_id']
+        fields = ['id', 'title', 'price', 'featured', 'category', 'category_id']
         validators = [
             UniqueTogetherValidator(
                 queryset=MenuItem.objects.all(),
@@ -29,8 +29,8 @@ class MenuItemSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Price must be greater than 2')
         return value
 
-    def CalculateTax(self, product : MenuItem):
-        return round(product.price * Decimal(1.12),2)
+    # def CalculateTax(self, product : MenuItem):
+    #     return round(product.price * Decimal(1.12),2)
     
 class GroupSerializer(serializers.ModelSerializer):  
         class Meta:
@@ -68,10 +68,10 @@ class CartSerializer(serializers.ModelSerializer):
         if value < 1:
             raise serializers.ValidationError('Quantity must be greater than 0')
         return value
-    def validate_price(self, value):
-        if value < 2:
-            raise serializers.ValidationError('Price must be greater than 2')
-        return value
+    def validate(self, attrs):
+        attrs['price'] = attrs['quantity'] * attrs['unit_price']
+        return attrs
+    
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -83,10 +83,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
         if value < 1:
             raise serializers.ValidationError('Quantity must be greater than 0')
         return value
-    def validate_price(self, value):
-        if value < 2:
-            raise serializers.ValidationError('Price must be greater than 2')
-        return value
+    def validate(self, attrs):
+        attrs['price'] = attrs['quantity'] * attrs['unit_price']
+        return attrs
 
 class OrderSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)

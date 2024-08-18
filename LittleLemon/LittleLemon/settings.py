@@ -138,9 +138,20 @@ REST_FRAMEWORK = {
         'rest_framework_csv.renderers.CSVRenderer', 
         'rest_framework_yaml.renderers.YAMLRenderer',
     ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 4,
     'DEFAULT_THROTTLE_RATES': {
-        'manager' : '7/minute',
         'user' : '10/minute',
+        'anon' : '5/minute',
+        'manager' : '7/minute',
         'delivery' : '6/minute',
         'customer' : '4/minute',
     },
